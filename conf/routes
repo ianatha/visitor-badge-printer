@@ -1,0 +1,10 @@
+GET     /                           controllers.Application.index
+GET     /nda                        controllers.Application.nda(to: String)
+
+GET     /interview                  controllers.Application.interview
+GET     /guest                      controllers.Application.guest
+GET     /event                      controllers.Application.event
+
+GET     /present                    controllers.Application.present
+
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

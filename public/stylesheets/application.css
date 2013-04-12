@@ -1,0 +1,58 @@
+.time {
+    font-size: 1.3em;
+    line-height: 1.5em
+}
+
+.people-list * {
+    border: 1px solid
+}
+
+.splash {
+    background: url(/assets/images/splash.png);
+    background-repeat: repeat-y;
+    background-position: center center;
+    background-attachment: scroll;
+    background-size: 100% 100%
+}
+
+.guest {
+    background: #80B0E2
+}
+
+#splashButtons {
+    width: 50%;
+    margin: auto
+}
+
+#splashButtons a {
+    font-size: 1.5em
+}
+
+input.error {
+    border-color: red
+}
+
+.ui-input-text.ui-body-b {
+    background: #FFF
+}
+
+label.ui-input-text, #error_explanation, .success {
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 -1px 1px #145072
+}
+
+label.ui-input-text.required {
+    font-size: 1.5em
+}
+
+.success p {
+    text-align: center;
+    font-size: 50px
+}
+
+.box_logo {
+    display: block;
+    width: 160px;
+    margin: auto
+}

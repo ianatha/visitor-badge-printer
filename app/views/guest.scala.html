@@ -1,0 +1,49 @@
+@main {
+<div data-role="page" data-theme="b" id="guest" class="guest">
+    <form accept-charset="UTF-8" action="/guest" class="new_person" id="new_person" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="MaG9uaHeOOnRiIuGU8mPxMuH+4xZnMQ20XQxi51ohfY=" /></div>
+        <a data-role="button" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
+            Back
+        </a>
+        <img src='@routes.Assets.at("images/box_logo.png")' class="box_logo"/>
+        <div data-role="content" style="margin-left: 15%;margin-right: 15%;">
+            <input id="person_nda_accepted" name="person[nda_accepted]" type="hidden" value="1" />
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label class="required" for="person_first_name">First name</label>
+                    <input id="person_first_name" name="person[first_name]" size="30" type="text" />
+                </fieldset>
+            </div>
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label class="required" for="person_last_name">Last name</label>
+                    <input id="person_last_name" name="person[last_name]" size="30" type="text" />
+                </fieldset>
+            </div>
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label for="person_company">Company (Optional)</label>
+                    <input id="person_company" name="person[company]" size="30" type="text" />
+                </fieldset>
+            </div>
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label class="required" for="person_host">Person Visiting</label>
+                    <input id="person_host" name="person[host]" size="30" type="text" />
+                </fieldset>
+            </div>
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label for="person_phone_number">Phone (Optional)</label>
+                    <input id="person_phone_number" name="person[phone_number]" size="30" type="tel" />
+                </fieldset>
+            </div>
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <label for="person_email_address">Email (Optional)</label>
+                    <input id="person_email_address" name="person[email_address]" size="30" type="email" />
+                </fieldset>
+            </div>
+        </div>
+        <input type="submit" data-theme="b" data-transition="fade" value="Submit">
+    </form></div>
+}
