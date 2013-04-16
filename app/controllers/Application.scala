@@ -1,5 +1,7 @@
 package controllers
 
+import play.api.libs.json._
+
 import play.api._
 import play.api.mvc._
 import templates.Html
@@ -7,34 +9,20 @@ import models._
 import models.Person
 import org.joda.time.DateTime
 import play.api.data.format.Formats.jodaDateTimeFormat
+import java.util.UUID
+
+import play.api.data._
+import play.api.data.Forms._
+import play.api.data.validation.Constraints._
 
 object Application extends Controller {
-  
+
   def index = Action {
     Ok(views.html.index())
   }
 
   def nda(to: String) = Action {
     Ok(views.html.nda(to))
-  }
-
-  import play.api.libs.json._
-
-  def apipresent = Action {
-    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
-    }
-
-    Ok(Json.toJson(visitor.head))
-  }
-
-
-  def visitor(id: Int) = Action {
-    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
-    }
-
-    Ok(Json.toJson(visitor))
   }
 
   def showAfterNdaOnly(html: Html): Action[AnyContent] = {
@@ -47,22 +35,24 @@ object Application extends Controller {
     }
   }
 
-  import play.api.data._
-  import play.api.data.Forms._
-  import play.api.data.validation.Constraints._
+  def formForEventType(v: VisitType) = {
+    Form[Person](
+      mapping(
+        "first_name" -> nonEmptyText
+        ,"last_name" -> nonEmptyText
+        ,"company" -> optional(text)
+        ,"host" -> nonEmptyText
+        ,"phone" -> optional(text)
+        ,"email" -> optional(email)
+        ,"nda_accepted" -> boolean
+        ,"created_at" -> default(of[DateTime], DateTime.now())
+      )
+        ((f,l,c,h,p,e,n,ca) => Person(Some(UUID.randomUUID()),f,l,c,h,p,e,v,n,ca))
+        (p => Some(p.first_name, p.last_name, p.company, p.host, p.phone, p.email, p.nda_accepted, p.created_at))
+    )
+  }
 
-  val guestForm = Form(
-    mapping(
-       "first_name" -> nonEmptyText
-      ,"last_name" -> nonEmptyText
-      ,"company" -> optional(text)
-      ,"host" -> nonEmptyText
-      ,"phone" -> optional(text)
-      ,"email" -> optional(email)
-      ,"nda_accepted" -> boolean
-      ,"created_at" -> default(of[DateTime], DateTime.now())
-    )(Person.apply)(Person.unapply)
-  )
+  val guestForm = formForEventType(Meeting)
 
   def guest = showAfterNdaOnly(views.html.guest(guestForm))
 
@@ -78,41 +68,92 @@ object Application extends Controller {
     )
   }
 
-  def event = showAfterNdaOnly(views.html.event())
+
+  val eventForm = formForEventType(Event)
+
+  def event = showAfterNdaOnly(views.html.event(eventForm))
 
   def eventReceive = Action { implicit request =>
-    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
-    }
-    Ok(views.html.present(persons))
-
+    guestForm.bindFromRequest.fold(
+      formWithErrors => Ok(views.html.event(formWithErrors)),
+      value => {
+        AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+          AppDB.dal.Persons.add(value)
+        }
+        Ok(views.html.success())
+      }
+    )
   }
 
-  def interview = showAfterNdaOnly(views.html.interview())
+
+  val interviewForm = formForEventType(Interview)
+
+  def interview = showAfterNdaOnly(views.html.interview(interviewForm))
 
   def interviewReceive = Action { implicit request =>
-    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
-    }
-    Ok(views.html.present(persons))
-
+    guestForm.bindFromRequest.fold(
+      formWithErrors => Ok(views.html.interview(formWithErrors)),
+      value => {
+        AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+          AppDB.dal.Persons.add(value)
+        }
+        Ok(views.html.success())
+      }
+    )
   }
+
 
   def present = Action {
-    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
+    val (persons, all) = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+      (AppDB.dal.Persons.present(), AppDB.dal.Persons.get())
     }
-    Ok(views.html.present(persons))
+    Ok(views.html.present(persons, all))
   }
 
-  def signout(first_name: String, last_name: String) = Action {
-    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+  def redb = Action { implicit request =>
+    AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+      AppDB.dal.drop
+      AppDB.dal.create
+    }
 
-      AppDB.dal.Persons.signout(first_name, last_name)
+    Redirect(routes.Application.index())
+  }
 
+  def apipresent = Action {
+    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
       AppDB.dal.Persons.get()
     }
 
-    Ok(views.html.present(persons))
+    Ok(Json.toJson(visitor.map { v =>
+      Map(
+        "id" -> v.id.toString
+        ,"name" -> v.first_name
+        ,"last" -> v.last_name
+        ,"host" -> v.host
+      )
+    }))
+  }
+
+  def visitor(id: java.util.UUID) = Action {
+    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+      AppDB.dal.Persons.get(id)
+    }.headOption
+
+    Ok(Json.toJson(visitor.map { v =>
+      Map(
+        "id" -> v.id.toString
+        ,"name" -> v.first_name
+        ,"last" -> v.last_name
+        ,"host" -> v.host
+      )
+    }))
+  }
+
+  def signout(needle: java.util.UUID) = Action {
+    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+      AppDB.dal.Persons.signout(needle)
+    }
+
+    Redirect(routes.Application.present())
   }
 }

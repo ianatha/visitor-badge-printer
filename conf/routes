@@ -1,17 +1,25 @@
 GET     /                           controllers.Application.index
+
 GET     /nda                        controllers.Application.nda(to: String)
 
 GET     /interview                  controllers.Application.interview
 POST    /interview                  controllers.Application.interviewReceive
+
 GET     /guest                      controllers.Application.guest
 POST    /guest                      controllers.Application.guestReceive
+
 GET     /event                      controllers.Application.event
 POST    /event                      controllers.Application.eventReceive
 
-GET     /present                    controllers.Application.present
-GET    /signout                    controllers.Application.signout(first_name: String, last_name: String)
 
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /present                    controllers.Application.present
+
+GET     /redb                       controllers.Application.redb
+
+
 
 GET     /api/1/present              controllers.Application.apipresent
-GET     /api/1/visitor/:id              controllers.Application.visitor(id: Int)
+GET     /api/1/visitor/:id          controllers.Application.visitor(id: java.util.UUID)
+POST    /api/1/signout/:id          controllers.Application.signout(id: java.util.UUID)
+
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
