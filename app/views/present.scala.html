@@ -1,18 +1,24 @@
-@(persons: Seq[Person])
+@(persons: Seq[Person], all: Seq[Person] = Seq())
 @main {
 <div data-role="page" id="page" data-theme="b">
     <div data-role="content">
-        <h1>People present onsite</h1>
+        <h1>People present On-Site</h1>
         <h3>Click on people's names to sign them out</h3>
         @persons.map { person =>
             <div data-role="controlgroup">
                 <a class="deleteButton"
                 data-role="button"
                 data-icon="delete"
-                    data-first="@person.first_name"
-                    data-last="@person.last_name"
-                data-person-id="1">@person.first_name @person.last_name ( @person 1 hour ago )</a>
+                data-id="@person.id">@person.first_name @person.last_name for <u>@person.host</u> for a <b>@person.visit_type</b> (@person.created_at)</a>
             </div>
+        }
+    </div>
+    <div data-role="content">
+        <h1>Everybody</h1>
+        @all.map { person =>
+        <div data-role="controlgroup">
+            <a data-id="@person.id">@person.first_name @person.last_name for @person.host (@person.created_at)</a>
+        </div>
         }
     </div>
 </div>
