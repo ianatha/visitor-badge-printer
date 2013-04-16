@@ -1,0 +1,51 @@
+@(host_label: String, post_action: play.api.mvc.Call, show_company: Boolean = true)(myForm: Form[Person])
+@import helpers.JQueryMobileFieldConstructor._
+
+@main {
+    <div data-role="page" data-theme="b" id="guest" class="guest">
+        @helper.form(action = post_action, 'id -> "new_person", 'class -> "new_person") {
+            <a data-role="button" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
+                    Back
+            </a>
+            <img src='@routes.Assets.at("images/box_logo.png")' class="box_logo"/>
+            <div data-role="content" style="margin-left: 15%;margin-right: 15%;">
+                @helper.inputText(
+                    myForm("first_name"),
+                    '_label -> "First name",
+                    'size -> 30)
+
+                @helper.inputText(
+                    myForm("last_name"),
+                    '_label -> "Last name",
+                    'size -> 30)
+
+                @if(show_company) {
+                    @helper.inputText(
+                        myForm("company"),
+                        '_label -> "Company",
+                        'size -> 30)
+                }
+
+                @helper.inputText(
+                    myForm("host"),
+                    '_label -> host_label,
+                    'size -> 30)
+
+                @helper.inputText(
+                    myForm("phone"),
+                    '_label -> "Phone",
+                    'type -> "tel",
+                    'size -> 30)
+
+                @helper.inputText(
+                    myForm("email_address"),
+                    '_label -> "Email",
+                    'type -> "email",
+                    'size -> 30)
+
+                <input type="hidden" name="nda_accepted" value="true" />
+            </div>
+            <input type="submit" data-theme="b" data-transition="fade" value="Submit">
+        }
+    </div>
+}
