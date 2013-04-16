@@ -5,11 +5,9 @@ import play.api.Logger
 
 class DAL(override val profile: ExtendedProfile)
   extends Storage
-  with UserStorageComponent
   with PersonStorageComponent {
   val entities = Seq(
-     Users
-    ,Persons
+     Persons
   )
   import profile.simple._
 

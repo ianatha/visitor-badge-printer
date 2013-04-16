@@ -1,4 +1,4 @@
-import models.{User, DBeable, AppDB}
+import models.{DBeable, AppDB}
 import play.api.db.DB
 import play.api.GlobalSettings
 
