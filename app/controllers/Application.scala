@@ -112,8 +112,17 @@ object Application extends Controller {
 
   def redb = Action { implicit request =>
     AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.drop
-      AppDB.dal.create
+      try {
+        AppDB.dal.drop
+      } catch {
+        case e => println(e)
+      }
+
+      try {
+        AppDB.dal.create
+      } catch {
+        case e => println(e)
+      }
     }
 
     Redirect(routes.Application.index())

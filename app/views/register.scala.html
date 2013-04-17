@@ -3,12 +3,18 @@
 
 @main {
     <div data-role="page" data-theme="b" id="guest" class="guest">
+        <a data-role="button" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
+            Back
+        </a>
+        <img src='@routes.Assets.at("images/box_logo.png")' class="box_logo"/>
         @helper.form(action = post_action, 'id -> "new_person", 'class -> "new_person") {
-            <a data-role="button" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
-                    Back
-            </a>
-            <img src='@routes.Assets.at("images/box_logo.png")' class="box_logo"/>
-            <div data-role="content" style="margin-left: 15%;margin-right: 15%;">
+            <div data-role="content" style="margin-left: 15%;margin-right: 15%;" class="ui-content" role="main">
+                @if(!myForm.errors.isEmpty) {
+                <div id="error_explanation" style="text-align: center;">
+                    <h2><span class="ui-icon ui-icon-alert" style="display: inline-block;"></span> @myForm.errors.length errors prohibited your registration from being saved!</h2>
+                </div>
+                }
+
                 @helper.inputText(
                     myForm("first_name"),
                     '_label -> "First name",

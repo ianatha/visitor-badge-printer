@@ -1,10 +1,14 @@
-@(elements: helper.FieldElements)
-
+@(field: helper.FieldElements)
 <div data-role="fieldcontain">
-<fieldset data-role="controlgroup">
-    <label class="required" for="@elements.id">@elements.label</label>
-    @elements.input
-    <span class="errors">@elements.errors.mkString(", ")</span>
-    <span class="help">@elements.infos.mkString(", ")</span>
+<fieldset data-role="controlgroup" @if(field.hasErrors) { class="error" }>
+    <label for="@field.id">
+        <span class="required">@field.label</span>
+        <div class="help">@field.infos.mkString(", ")</div>
+    </label>
+    @field.input
+    @if(field.hasErrors) {
+        <span class="ui-icon ui-icon-alert" style="display: inline-block;"></span>
+        <span class="errors">@field.errors.mkString(", ")</span>
+    }
 </fieldset>
 </div>
