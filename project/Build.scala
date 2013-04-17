@@ -313,6 +313,6 @@ exit 0
 				packageMapping(onejar -> ("/tmp/test.jar"))
 			)
 		}
-	)
+	):_*
 )
 }
