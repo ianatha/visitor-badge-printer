@@ -1,0 +1,19 @@
+.splash {
+    background: url(/assets/images/retina_wood_@2X.png);
+    background-repeat: repeat-y repeat-x;
+    background-attachment: scroll;
+}
+
+.guest {
+    background: #80B0E2;
+}
+
+.ui-input-text.ui-body-b {
+    background: #FFF
+}
+
+.company_logo {
+    background: url(/assets/images/acme.png);
+    width: 168px;
+    height: 55px;
+}

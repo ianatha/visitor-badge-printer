@@ -1,0 +1,21 @@
+.splash {
+    background: url(/assets/images/splash.png);
+    background-repeat: repeat-y;
+    background-position: center center;
+    background-attachment: scroll;
+    background-size: 100% 100%
+}
+
+.guest {
+    background: #80B0E2
+}
+
+.ui-input-text.ui-body-b {
+    background: #FFF
+}
+
+.company_logo {
+    background: url(/assets/images/box_logo.png);
+    width: 160px;
+    height: 94px;
+}

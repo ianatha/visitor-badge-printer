@@ -7,16 +7,7 @@
     border: 1px solid
 }
 
-.splash {
-    background: url(/assets/images/splash.png);
-    background-repeat: repeat-y;
-    background-position: center center;
-    background-attachment: scroll;
-    background-size: 100% 100%
-}
-
 .guest {
-    background: #80B0E2
 }
 
 #splashButtons {
@@ -33,7 +24,6 @@
 }
 
 .ui-input-text.ui-body-b {
-    background: #FFF
 }
 
 label.ui-input-text, #error_explanation, .success {
@@ -51,8 +41,7 @@ label.ui-input-text, #error_explanation, .success {
     font-size: 50px
 }
 
-.box_logo {
+.company_logo {
     display: block;
-    width: 160px;
-    margin: auto
+    margin: auto;
 }

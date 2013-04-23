@@ -6,7 +6,7 @@
         <a data-role="button" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
             Back
         </a>
-        <img src='@routes.Assets.at("images/box_logo.png")' class="box_logo"/>
+        <span class="company_logo"></span>
         @helper.form(action = post_action, 'id -> "new_person", 'class -> "new_person") {
             <div data-role="content" style="margin-left: 15%;margin-right: 15%;" class="ui-content" role="main">
                 @if(!myForm.errors.isEmpty) {

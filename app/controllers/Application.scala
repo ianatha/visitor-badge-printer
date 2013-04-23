@@ -22,7 +22,8 @@ object Application extends Controller {
   }
 
   def nda(to: String) = Action {
-    Ok(views.html.nda(to))
+    val nda_text = """NDA"""
+    Ok(views.html.nda(to, nda_text))
   }
 
   def showAfterNdaOnly(html: Html): Action[AnyContent] = {
@@ -35,7 +36,7 @@ object Application extends Controller {
     }
   }
 
-  def formForEventType(v: VisitType) = {
+  def formForEventType(v: VisitType.VisitType) = {
     Form[Person](
       mapping(
         "first_name" -> nonEmptyText
@@ -52,7 +53,7 @@ object Application extends Controller {
     )
   }
 
-  val guestForm = formForEventType(Meeting)
+  val guestForm = formForEventType(VisitType.Meeting)
 
   def guest = showAfterNdaOnly(views.html.guest(guestForm))
 
@@ -69,7 +70,7 @@ object Application extends Controller {
   }
 
 
-  val eventForm = formForEventType(Event)
+  val eventForm = formForEventType(VisitType.Event)
 
   def event = showAfterNdaOnly(views.html.event(eventForm))
 
@@ -86,7 +87,7 @@ object Application extends Controller {
   }
 
 
-  val interviewForm = formForEventType(Interview)
+  val interviewForm = formForEventType(VisitType.Interview)
 
   def interview = showAfterNdaOnly(views.html.interview(interviewForm))
 
@@ -110,59 +111,5 @@ object Application extends Controller {
     Ok(views.html.present(persons, all))
   }
 
-  def redb = Action { implicit request =>
-    AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      try {
-        AppDB.dal.drop
-      } catch {
-        case e => println(e)
-      }
 
-      try {
-        AppDB.dal.create
-      } catch {
-        case e => println(e)
-      }
-    }
-
-    Redirect(routes.Application.index())
-  }
-
-  def apipresent = Action {
-    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
-    }
-
-    Ok(Json.toJson(visitor.map { v =>
-      Map(
-        "id" -> v.id.toString
-        ,"name" -> v.first_name
-        ,"last" -> v.last_name
-        ,"host" -> v.host
-      )
-    }))
-  }
-
-  def visitor(id: java.util.UUID) = Action {
-    val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get(id)
-    }.headOption
-
-    Ok(Json.toJson(visitor.map { v =>
-      Map(
-        "id" -> v.id.toString
-        ,"name" -> v.first_name
-        ,"last" -> v.last_name
-        ,"host" -> v.host
-      )
-    }))
-  }
-
-  def signout(needle: java.util.UUID) = Action {
-    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.signout(needle)
-    }
-
-    Redirect(routes.Application.present())
-  }
 }

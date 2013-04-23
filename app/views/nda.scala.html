@@ -1,4 +1,4 @@
-@(to: String)
+@(to: String, nda_text: String)
 @main {
 <div data-role="page" data-theme="b" id="nda" class="guest">
     <a data-role="button" data-ajax="false" data-transition="fade" href="/" data-icon="arrow-l" data-iconpos="left">
@@ -7,17 +7,7 @@
     <div data-role="content">
         <h3 style="text-align:center">Non-Disclosure Agreement</h3>
 <textarea id="nda_container">
-In the course of your visit or dealings with Box, Inc. ("Box") or its representatives, you will be given access to “Confidential Information” as defined below.  In consideration of your receipt of such Confidential Information, you agree to abide by the following terms of this Non-Disclosure Agreement:
-
-1.	"Confidential Information" shall mean all information disclosed by Box to you, including without limitation information acquired by you from Box employees or by your inspection of Box’s property, relating to (without limitation) Box’s products and services, designs, hardware and software configurations, business plans, business opportunities, finances, prices and discounts, research, development, know-how or personnel, and confidential information disclosed to Box by third parties. Confidential Information shall not include information which (i) is now or subsequently becomes generally known or available by publication, commercial use or otherwise, through no fault of your own, (ii) is known by you at the time of disclosure, (iii) is independently developed by you without the use of any Confidential Information, or (iv) is lawfully obtained by you from a third party without violation of a confidentiality obligation.
-
-2.	You agree, individually and on behalf of your employer (if you are representing a company or other entity), not to (i) disclose the Confidential Information to any third party, including employees or other representatives of your employer, or (ii) use or otherwise benefit from the Confidential Information for any purpose other than discussions regarding mutual business opportunities with Box, without the prior written consent of Box. You must honor all confidentiality and other contractual obligations to your current and prior employers and clients, if any. Additionally, you agree not to record any images or sounds with any recording or photographic or similar device without Box’s prior consent.
-
-3.  All Confidential Information remains the property of Box and no license or other rights in the Confidential Information is granted hereby.  All information is provided “as is” and without any warranty, express, implied, or otherwise, regarding its accuracy or performance. You agree to return to Box immediately upon Box’s written request all Confidential Information, including but not limited to all computer programs, documentation, notes, plans, drawings, and copies thereof.  You agree to comply with all applicable United States export controls with respect to the Confidential Information.
-
-4.  This Non-Disclosure Agreement shall be governed by and construed and enforced in accordance with the laws of the State of California as they apply to contracts entered into and wholly to be performed in the State of California.  The federal and state courts within the State of California shall have exclusive jurisdiction to adjudicate any dispute arising out of this Non-Disclosure Agreement.
-
-By agreeing below you acknowledge that you have read and understand these terms and agree to be bound by them, and, if you are representing a company or other entity, you have the authority and agree to bind such entity to these terms as well.
+@nda_text
 </textarea>
     </div>
     <a class="nda-agree" data-role="button" data-transition="fade" href="@to?nda=true" data-icon="arrow-r" data-iconpos="agree">
