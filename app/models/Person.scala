@@ -2,16 +2,21 @@ package models
 
 import org.joda.time.DateTime
 import java.util.UUID
+import scala.slick.lifted.BaseTypeMapper
+import scala.slick.lifted.MappedTypeMapper._
 
-object VisitType {
-  def fromString(s: String): VisitType = {
-    Vector(Meeting, Event, Interview).find(_.toString == s).get
+object VisitType extends Enumeration {
+  type VisitType = Value
+  val Meeting, Event, Interview = Value
+
+  def fromString(s: String): VisitType.VisitType = {
+    VisitType.values.find(_.toString == s).get
   }
+
+  implicit def visitTypeMapper[VisitType] = base[VisitType.VisitType, String] (
+    { _.toString },
+    { VisitType.fromString(_) })
 }
-sealed trait VisitType
-case object Meeting extends VisitType
-case object Event extends VisitType
-case object Interview extends VisitType
 
 case class Person(
    id: Option[UUID]
@@ -21,7 +26,7 @@ case class Person(
   ,host: String
   ,phone: Option[String]
   ,email: Option[String]
-  ,visit_type: VisitType
+  ,visit_type: VisitType.VisitType
   ,nda_accepted: Boolean
   ,created_at: DateTime = DateTime.now()
   ,signed_out: Boolean = false
@@ -41,7 +46,14 @@ trait PersonStorageComponent {
       d => new Timestamp(d.getMillis),
       t => new DateTime(t.getTime, UTC))
 
-  implicit val VisitTypeTypeMapper: TypeMapper[VisitType] = base[VisitType, String]({_.toString}, VisitType.fromString)
+//  implicit val VisitTypeTypeMapper1: BaseTypeMapper[VisitType] =  base[VisitType, String]({_.toString}, VisitType.fromString)
+//  implicit val VisitTypeTypeMapper2: BaseTypeMapper[VisitType] = base[VisitType, String]({_.toString}, VisitType.fromString)
+//  implicit val VisitTypeTypeMapper3: BaseTypeMapper[VisitType] = base[VisitType, String]({_.toString}, VisitType.fromString)
+//  implicit val VisitTypeTypeMapper4: BaseTypeMapper[VisitType] = base[VisitType, String]({_.toString}, VisitType.fromString)
+//
+//  implicit val VisitTypeTypeMapper: BaseTypeMapper[U <: VisitType] = base[U, String]({_.toString}, VisitType.fromString)
+
+
 
   import profile.simple._
 
@@ -53,7 +65,7 @@ trait PersonStorageComponent {
     def host =  column[String]("host")
     def phone =  column[Option[String]]("phone")
     def email =  column[Option[String]]("email")
-    def visit_type =  column[VisitType]("visit_type")
+    def visit_type =  column[VisitType.VisitType]("visit_type")
     def nda_accepted =  column[Boolean]("nda_accepted")
     def created_at = column[DateTime]("created_at")
     def signed_out =  column[Boolean]("signed_out")
@@ -82,6 +94,14 @@ trait PersonStorageComponent {
       } yield (p)
 
       persons.sortBy(_.created_at.asc).list
+    }
+
+    def last_few_events()(implicit session: Session): Seq[String] = {
+      val events = for {
+        p <- Persons if p.visit_type === VisitType.Event
+      } yield (p.host)
+
+      events.sortBy(_.count.desc).list().distinct
     }
 
     def signout(needle: UUID)(implicit session: Session): Unit = {
