@@ -14,6 +14,7 @@ import scala.collection.JavaConversions._
 import xml.{Text, XML}
 import java.io.{FileInputStream, File, BufferedInputStream}
 import org.joda.time.DateTime
+import util.matching.Regex
 
 case class Configuration(
   printerName: String = "DYMO LabelWriter 450 Turbo",
@@ -135,10 +136,10 @@ class BadgePrinter(val printerName: String, val renderer: BadgeRenderer) {
 class DataSource(val remoteURL: String) {
   var idsIHaveSeen: Seq[Int] = Seq()
 
-  val pattern = "data-person-id=\"(\\d+)\">([\\w &;]+)\\( (.+) ago \\)".r
+  val pattern = "data-person-id=\"(\\d+)\">(.+)\\( (.+) ago \\)".r
   val agonessP = "(?:about )?(\\d+|less than a) ((minute|hour)s?)".r
 
-  def sanitize(in: String): String = in.replaceAll("&nbsp;", " ")
+  def sanitize(in: String): String = in.replaceAll("&nbsp;", " ").replaceAll("&#x27;", "'")
 
   def poll(): List[VisitorBadge] = {
     val present = scala.io.Source.fromInputStream(new URL(remoteURL).openStream()).getLines().mkString("\n")
@@ -166,7 +167,7 @@ class DataSource(val remoteURL: String) {
       }
     }))
       .filter { badge => !idsIHaveSeen.contains(badge.id) } // haven't seen it before
-      .filter { badge => badge.created_at.isAfter(DateTime.now().minusMinutes(2)) } // created in the past two minutes
+      .filter { badge => badge.created_at.isAfter(DateTime.now().minusMinutes(5)) } // created in the past two minutes
       .toList
 
     if (entries.length > 0) {
