@@ -10,6 +10,10 @@
 .guest {
 }
 
+#nda {
+    text-align: center;
+}
+
 #splashButtons {
     width: 50%;
     margin: auto

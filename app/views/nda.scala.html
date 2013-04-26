@@ -6,12 +6,26 @@
     </a>
     <div data-role="content">
         <h3 style="text-align:center">Non-Disclosure Agreement</h3>
-<textarea id="nda_container">
+	    <p>To guarantee the safety of the sensitive information our customers entrust us with, we ask that all guests review and electronically sign the following agreement.</p>
+        <textarea id="nda_container">
 @nda_text
-</textarea>
+        </textarea>
     </div>
-    <a class="nda-agree" data-role="button" data-transition="fade" href="@to?nda=true" data-icon="arrow-r" data-iconpos="agree">
-        I Agree
-    </a>
+
+    <form method="get" action="@to?">
+        <div class="sigPad">
+            <div class="sigNav">
+                <a href="#clear" class="clearButton"><div class="ui-icon ui-icon-delete"></div></a>
+            </div>
+            <div class="sig sigWrapper">
+                <div class="typed"></div>
+                <canvas class="pad" width="598" height="140"></canvas>
+                <input type="hidden" name="signature" class="output-disabled">
+            </div>
+        </div>
+
+        <input type="hidden" name="nda" value="true" />
+        <input type="submit" class="nda-agree" data-role="button" data-transition="fade" data-icon="arrow-r" data-iconpos="right" value="I Agree" />
+    </form>
 </div>
 }
