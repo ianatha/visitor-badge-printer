@@ -1,3 +1,6 @@
+.DS_Store
+project/.idea/
+project/.idea_modules/
 logs
 project/project
 project/target
