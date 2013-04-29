@@ -48,7 +48,7 @@ object Application extends Controller {
         ,"nda_accepted" -> boolean
         ,"created_at" -> default(of[DateTime], DateTime.now())
       )
-        ((f,l,c,h,p,e,n,ca) => Person(Some(UUID.randomUUID()),f,l,c,h,p,e,v,n,ca))
+        ((f,l,c,h,p,e,n,ca) => Person(UUID.randomUUID(),f,l,c,h,p,e,v,n,ca))
         (p => Some(p.first_name, p.last_name, p.company, p.host, p.phone, p.email, p.nda_accepted, p.created_at))
     )
   }

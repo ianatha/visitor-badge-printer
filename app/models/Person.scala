@@ -19,7 +19,7 @@ object VisitType extends Enumeration {
 }
 
 case class Person(
-   id: Option[UUID]
+   id: UUID
   ,first_name: String
   ,last_name: String
   ,company: Option[String]
@@ -70,7 +70,7 @@ trait PersonStorageComponent {
     def created_at = column[DateTime]("created_at")
     def signed_out =  column[Boolean]("signed_out")
 
-    def * = (id.? ~ first_name ~ last_name ~ company ~ host ~ phone ~ email ~ visit_type ~ nda_accepted ~ created_at ~ signed_out) <> (Person, Person.unapply _)
+    def * = (id ~ first_name ~ last_name ~ company ~ host ~ phone ~ email ~ visit_type ~ nda_accepted ~ created_at ~ signed_out) <> (Person, Person.unapply _)
 
     def get()(implicit session: Session): Seq[Person] = {
       val persons = for {
