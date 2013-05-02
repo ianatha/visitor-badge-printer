@@ -1,6 +1,6 @@
 package io.atha.VisitorBadgePrinter
 
-import java.util.{Properties, List, Date}
+import java.util.{UUID, Properties, List, Date}
 import java.awt._
 import java.awt.image.BufferedImage
 import java.awt.print.{Printable, PageFormat, Paper, PrinterJob}
@@ -13,8 +13,9 @@ import org.fit.cssbox.layout.BrowserCanvas
 import scala.collection.JavaConversions._
 import xml.{Text, XML}
 import java.io.{FileInputStream, File, BufferedInputStream}
-import org.joda.time.DateTime
-import util.matching.Regex
+import org.joda.time.{DateTimeZone, DateTime}
+import scala.util.matching.Regex
+import org.joda.time.format.DateTimeFormat
 
 case class Configuration(
   printerName: String = "DYMO LabelWriter 450 Turbo",
@@ -23,7 +24,7 @@ case class Configuration(
   pollingFrequencyInUSec: Int = 2500
 )
 
-case class VisitorBadge(id: Int, visitor: String, host: String, created_at: DateTime)
+case class VisitorBadge(id: String, visitor: String, host: String, created_at: DateTime)
 
 class BadgeRenderer(val templateURL: URL) {
   val docSource = new DefaultDocumentSource(templateURL)
@@ -68,7 +69,11 @@ class BadgeRenderer(val templateURL: URL) {
     } else {
       val beanField = bean.getClass.getDeclaredField(field)
       beanField.setAccessible(true)
-      beanField.get(bean).toString
+      if (beanField.getType.getCanonicalName == "org.joda.time.DateTime") {
+        beanField.get(bean).asInstanceOf[DateTime].toDateTime(DateTimeZone.forID("America/Los_Angeles")).toString(DateTimeFormat.longDateTime())
+      } else {
+        beanField.get(bean).toString
+      }
     }
   }
 }
@@ -133,15 +138,47 @@ class BadgePrinter(val printerName: String, val renderer: BadgeRenderer) {
   }
 }
 
-class DataSource(val remoteURL: String) {
-  var idsIHaveSeen: Seq[Int] = Seq()
+trait DataSource {
+  def poll(): Seq[VisitorBadge]
+}
+
+class APIDataSource(val remoteURL: String) extends DataSource {
+  import scala.util.parsing.json._
+
+  var idsIHaveSeen: Seq[String] = Seq()
+
+  def poll(): Seq[VisitorBadge] = {
+    val present = scala.io.Source.fromInputStream(new URL(remoteURL).openStream()).getLines().mkString("\n")
+
+    val json = JSON.parseFull(present).get.asInstanceOf[Seq[Map[String, String]]]
+
+    val entries = json.map { entry =>
+      VisitorBadge(entry.get("id").getOrElse(""), "%s %s".format(entry.get("name").get, entry.get("last").get), entry.get("host").getOrElse(""), DateTime.parse(entry.get("created_at").get))
+    }
+      .filter { badge => !idsIHaveSeen.contains(badge.id) }
+
+    if (entries.length > 0) {
+      println("PRINTING BADGES!")
+      println(entries)
+    }
+
+    entries.foreach { badge =>
+      idsIHaveSeen = idsIHaveSeen ++ Seq(badge.id)
+    }
+
+    entries
+  }
+}
+
+class NSilvaDataSource(val remoteURL: String) extends DataSource {
+  var idsIHaveSeen: Seq[String] = Seq()
 
   val pattern = "data-person-id=\"(\\d+)\">(.+)\\( (.+) ago \\)".r
   val agonessP = "(?:about )?(\\d+|less than a) ((minute|hour)s?)".r
 
   def sanitize(in: String): String = in.replaceAll("&nbsp;", " ").replaceAll("&#x27;", "'")
 
-  def poll(): List[VisitorBadge] = {
+  def poll(): Seq[VisitorBadge] = {
     val present = scala.io.Source.fromInputStream(new URL(remoteURL).openStream()).getLines().mkString("\n")
 
     val entries = (pattern.findAllIn(present) map ( _ match {
@@ -163,7 +200,7 @@ class DataSource(val remoteURL: String) {
           }
           case _ => now
         })).toList.head
-        VisitorBadge(id.toInt, sanitize(name), "", when)
+        VisitorBadge(id, sanitize(name), "", when)
       }
     }))
       .filter { badge => !idsIHaveSeen.contains(badge.id) } // haven't seen it before
@@ -199,7 +236,7 @@ object Main {
 
     val renderer = new BadgeRenderer(new URL("file:///" + conf.badgeTemplate))
     val printer = new BadgePrinter(conf.printerName, renderer)
-    val data = new DataSource(conf.remoteDataSource)
+    val data = new APIDataSource(conf.remoteDataSource)
 
     while (true) {
       try {
