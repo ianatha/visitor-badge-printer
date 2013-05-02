@@ -14,6 +14,7 @@ import java.util.UUID
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
+import org.joda.time.format.DateTimeFormatter
 
 object API extends Controller {
  def redb = Action { implicit request =>
@@ -45,6 +46,7 @@ object API extends Controller {
         ,"name" -> v.first_name
         ,"last" -> v.last_name
         ,"host" -> v.host
+        ,"created_at" -> v.created_at.toString()
       )
     }))
   }
@@ -60,6 +62,7 @@ object API extends Controller {
         ,"name" -> v.first_name
         ,"last" -> v.last_name
         ,"host" -> v.host
+        ,"created_at" -> v.created_at.toString()
       )
     }))
   }
