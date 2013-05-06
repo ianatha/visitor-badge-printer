@@ -37,7 +37,7 @@ object API extends Controller {
 
   def present = Action {
     val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.get()
+      AppDB.dal.Persons.present()
     }
 
     Ok(Json.toJson(visitor.map { v =>
