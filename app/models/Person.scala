@@ -96,7 +96,7 @@ trait PersonStorageComponent {
       Query(Persons)
         .filter(_.signed_out === false)
         .filter(_.created_at > datetime2timestamp(DateTime.now().minusHours(12)))
-        .sortBy(_.created_at.asc)
+        .sortBy(_.created_at.desc)
         .list
     }
 
