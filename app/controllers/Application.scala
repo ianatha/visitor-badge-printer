@@ -14,6 +14,10 @@ import java.util.UUID
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
+import java.sql.Timestamp
+import org.joda.time.DateTimeZone._
+import models.Person
+import scala.Some
 
 object Application extends Controller {
 
@@ -35,6 +39,10 @@ object Application extends Controller {
       }
     }
   }
+
+
+  implicit def timestamp2datetime(a: Timestamp): DateTime = new DateTime(a.getTime, UTC)
+  implicit def datetime2timestamp(a: DateTime): Timestamp = new Timestamp(a.getMillis)
 
   def formForEventType(v: VisitType.VisitType) = {
     Form[Person](

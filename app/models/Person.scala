@@ -1,8 +1,14 @@
 package models
 
+import java.sql.Timestamp
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone.UTC
+import scala.slick.lifted.MappedTypeMapper.base
+import scala.slick.lifted.{MappedTypeMapper, TypeMapper, BaseTypeMapper}
+
+
 import org.joda.time.DateTime
 import java.util.UUID
-import scala.slick.lifted.BaseTypeMapper
 import scala.slick.lifted.MappedTypeMapper._
 
 object VisitType extends Enumeration {
@@ -28,7 +34,7 @@ case class Person(
   ,email: Option[String]
   ,visit_type: VisitType.VisitType
   ,nda_accepted: Boolean
-  ,created_at: DateTime = DateTime.now()
+  ,created_at: Timestamp
   ,signed_out: Boolean = false
 )
 
@@ -36,15 +42,12 @@ case class Person(
 trait PersonStorageComponent {
   this: Storage =>
 
-  import java.sql.Timestamp
-  import org.joda.time.DateTime
-  import org.joda.time.DateTimeZone.UTC
-  import scala.slick.lifted.MappedTypeMapper.base
-  import scala.slick.lifted.TypeMapper
 
-  implicit val DateTimeMapper: TypeMapper[DateTime] = base[DateTime, Timestamp](
-      d => new Timestamp(d.getMillis),
-      t => new DateTime(t.getTime, UTC))
+  implicit val DateTimeMapper = new MappedTypeMapper[DateTime, java.sql.Timestamp] with BaseTypeMapper[DateTime] {
+    def map(t: DateTime): java.sql.Timestamp = new Timestamp(t.getMillis)
+    def comap(t: java.sql.Timestamp): DateTime = new DateTime(t.getTime, UTC)
+    override def sqlTypeName = Some("DATETIME")
+  }
 
 //  implicit val VisitTypeTypeMapper1: BaseTypeMapper[VisitType] =  base[VisitType, String]({_.toString}, VisitType.fromString)
 //  implicit val VisitTypeTypeMapper2: BaseTypeMapper[VisitType] = base[VisitType, String]({_.toString}, VisitType.fromString)
@@ -53,7 +56,8 @@ trait PersonStorageComponent {
 //
 //  implicit val VisitTypeTypeMapper: BaseTypeMapper[U <: VisitType] = base[U, String]({_.toString}, VisitType.fromString)
 
-
+  implicit def timestamp2datetime(a: Timestamp): DateTime = new DateTime(a.getTime, UTC)
+  implicit def datetime2timestamp(a: DateTime): Timestamp = new Timestamp(a.getMillis)
 
   import profile.simple._
 
@@ -67,7 +71,7 @@ trait PersonStorageComponent {
     def email =  column[Option[String]]("email")
     def visit_type =  column[VisitType.VisitType]("visit_type")
     def nda_accepted =  column[Boolean]("nda_accepted")
-    def created_at = column[DateTime]("created_at")
+    def created_at = column[Timestamp]("created_at")
     def signed_out =  column[Boolean]("signed_out")
 
     def * = (id ~ first_name ~ last_name ~ company ~ host ~ phone ~ email ~ visit_type ~ nda_accepted ~ created_at ~ signed_out) <> (Person, Person.unapply _)
@@ -89,11 +93,11 @@ trait PersonStorageComponent {
     }
 
     def present()(implicit session: Session): Seq[Person] = {
-      val persons = for {
-        p <- Persons if p.signed_out === false
-      } yield (p)
-
-      persons.sortBy(_.created_at.asc).list
+      Query(Persons)
+        .filter(_.signed_out === false)
+        .filter(_.created_at > datetime2timestamp(DateTime.now().minusHours(12)))
+        .sortBy(_.created_at.asc)
+        .list
     }
 
     def last_few_events()(implicit session: Session): Seq[String] = {

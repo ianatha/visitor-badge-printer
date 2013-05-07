@@ -15,7 +15,7 @@
                 data-id="@person.id">@person.first_name @person.last_name
                     for <u>@person.host</u>
                     for a <b>@person.visit_type</b>
-                    (@person.created_at.toDateTime(DateTimeZone.forID("America/Los_Angeles")).toString(DateTimeFormat.longDateTime()))</a>
+                    (@person.created_at)</a>
             </div>
         }
     </div>
@@ -23,7 +23,7 @@
         <h1>Everybody</h1>
         @all.map { person =>
         <div data-role="controlgroup">
-            <a data-id="@person.id">@person.first_name @person.last_name for @person.host (@person.created_at.toDateTime(DateTimeZone.forID("America/Los_Angeles")).toString(DateTimeFormat.longDateTime()))</a></a>
+            <a data-id="@person.id">@person.first_name @person.last_name for @person.host (@person.created_at)</a>
         </div>
         }
     </div>
