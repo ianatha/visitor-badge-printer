@@ -18,6 +18,7 @@ object ApplicationBuild extends Build {
      jdbc
     ,anorm
     ,"com.typesafe.slick" %% "slick" % "1.0.0"
+    ,"com.github.tototoshi" %% "slick-joda-mapper" % "0.2.1"
     ,"postgresql" % "postgresql" % "9.1-901.jdbc4"
     ,"mysql" % "mysql-connector-java" % "5.1.18"
   )

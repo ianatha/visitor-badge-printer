@@ -15,7 +15,6 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation.Constraints._
 import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat, DateTimeFormatter}
-import java.sql.Timestamp
 import org.joda.time.DateTimeZone._
 
 object API extends Controller {
@@ -43,7 +42,7 @@ object API extends Controller {
       ,"name" -> v.first_name
       ,"last" -> v.last_name
       ,"host" -> v.host
-      ,"created_at" -> timestamp2datetime(v.created_at).toDateTime(DateTimeZone.forID("America/Los_Angeles")).toString(ISODateTimeFormat.dateTime())
+      ,"created_at" -> v.created_at.toDateTime(DateTimeZone.forID("America/Los_Angeles")).toString(ISODateTimeFormat.dateTime())
     )
   })
 
@@ -54,8 +53,6 @@ object API extends Controller {
 
     Ok(personsToJsons(visitor))
   }
-
-  def timestamp2datetime(a: Timestamp): DateTime = new DateTime(a.getTime, UTC)
 
   def visitor(id: java.util.UUID) = Action {
     val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
