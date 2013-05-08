@@ -1,20 +1,14 @@
 package controllers
 
-import play.api.libs.json._
-
 import play.api._
 import play.api.mvc._
 import templates.Html
 import models._
-import models.Person
 import org.joda.time.DateTime
-import play.api.data.format.Formats.jodaDateTimeFormat
 import java.util.UUID
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.data.validation.Constraints._
-import org.joda.time.DateTimeZone._
 import models.Person
 import scala.Some
 
@@ -38,7 +32,6 @@ object Application extends Controller {
       }
     }
   }
-
 
   def formForEventType(v: VisitType.VisitType) = {
     Form[Person](
@@ -105,12 +98,11 @@ object Application extends Controller {
     )
   }
 
-
   def present = Action {
-    val (persons, all) = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      (AppDB.dal.Persons.present(), AppDB.dal.Persons.get())
+    val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
+      AppDB.dal.Persons.present()
     }
-    Ok(views.html.present(persons, all))
+    Ok(views.html.present(persons))
   }
 
 

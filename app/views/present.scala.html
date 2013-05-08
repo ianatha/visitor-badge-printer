@@ -1,4 +1,4 @@
-@(persons: Seq[Person], all: Seq[Person] = Seq())
+@(persons: Seq[Person])
 @import org.joda.time.DateTimeZone
 @import org.joda.time.format.DateTimeFormat
 
@@ -17,14 +17,6 @@
                     for a <b>@person.visit_type</b>
                     (@person.created_at)</a>
             </div>
-        }
-    </div>
-    <div data-role="content">
-        <h1>Everybody</h1>
-        @all.map { person =>
-        <div data-role="controlgroup">
-            <a data-id="@person.id">@person.first_name @person.last_name for @person.host (@person.created_at)</a>
-        </div>
         }
     </div>
 </div>
