@@ -31,6 +31,7 @@ case class Person(
   ,nda_accepted: Boolean
   ,created_at: DateTime
   ,signed_out: Boolean = false
+  ,location: String
 )
 
 trait PersonStorageComponent {
@@ -50,8 +51,9 @@ trait PersonStorageComponent {
     def nda_accepted =  column[Boolean]("nda_accepted")
     def created_at = column[DateTime]("created_at")
     def signed_out =  column[Boolean]("signed_out")
+    def location = column[String]("location")
 
-    def * = (id ~ first_name ~ last_name ~ company ~ host ~ phone ~ email ~ visit_type ~ nda_accepted ~ created_at ~ signed_out) <> (Person, Person.unapply _)
+    def * = (id ~ first_name ~ last_name ~ company ~ host ~ phone ~ email ~ visit_type ~ nda_accepted ~ created_at ~ signed_out ~ location) <> (Person, Person.unapply _)
 
     def get()(implicit session: Session): Seq[Person] = {
       val persons = for {
@@ -69,9 +71,10 @@ trait PersonStorageComponent {
       persons.list.headOption
     }
 
-    def present()(implicit session: Session): Seq[Person] = {
+    def present(location: String)(implicit session: Session): Seq[Person] = {
       Query(Persons)
-        .filter(_.signed_out === false)
+        .filter(_.location === location)
+        .filter(_.signed_out.isNull)
         .filter(_.created_at > DateTime.now().minusHours(12))
         .sortBy(_.created_at.desc)
         .list

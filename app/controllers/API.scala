@@ -46,9 +46,9 @@ object API extends Controller {
     )
   })
 
-  def present = Action {
+  def present(location: String) = Action {
     val visitor = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.present()
+      AppDB.dal.Persons.present(location)
     }
 
     Ok(personsToJsons(visitor))

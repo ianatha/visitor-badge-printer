@@ -24,10 +24,12 @@ object Application extends Controller {
     }
   }
 
+  def standardize_location(in: String): String = in.toUpperCase().replaceAll("[^A-Z]", "-")
+
   def setLocation(location: Option[String]) = Action { request =>
     if (location.isDefined) {
       Redirect(routes.Application.index()).withSession(
-        request.session + ("location", location.get)
+        request.session + ("location", standardize_location(location.get))
       )
     } else {
       Ok(views.html.setlocation(request.session.get("location").getOrElse("")))
@@ -73,11 +75,12 @@ object Application extends Controller {
   def guest = showAfterNdaOnly(views.html.guest(guestForm))
 
   def guestReceive = ActionWithLocation { implicit request =>
+    val loc = request.session.get("location").get
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.guest(formWithErrors)),
       value => {
         AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-          AppDB.dal.Persons.add(value)
+          AppDB.dal.Persons.add(value.copy(location = loc))
         }
         Ok(views.html.success())
       }
@@ -119,7 +122,7 @@ object Application extends Controller {
 
   def present = ActionWithLocation { request =>
     val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.present()
+      AppDB.dal.Persons.present(request.session.get("location").getOrElse(""))
     }
     Ok(views.html.present(persons, request.session.get("location").getOrElse("")))
   }

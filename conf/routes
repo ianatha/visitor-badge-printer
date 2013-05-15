@@ -17,7 +17,7 @@ GET     /present                    controllers.Application.present
 
 
 GET     /api/hack/redb              controllers.API.redb
-GET     /api/1/present              controllers.API.present
+GET     /api/1/present              controllers.API.present(location: String)
 GET     /api/1/recent_events              controllers.API.last_few_events
 GET     /api/1/visitor/:id          controllers.API.visitor(id: java.util.UUID)
 POST    /api/1/signout/:id          controllers.API.signout(id: java.util.UUID)
