@@ -1,0 +1,13 @@
+@(currentLoc: String)
+@import helpers.JQueryMobileFieldConstructor._
+
+@main {
+    <div data-role="page" data-theme="b">
+        @helper.form(action = routes.Application.setLocation(None)) {
+           <div data-role="content" style="margin-left: 15%;margin-right: 15%;" class="ui-content" role="main">
+                Location: <input name="location" value="@currentLoc"/>
+           </div>
+           <input type="submit" data-theme="b" value="Submit">
+        }
+    </div>
+}

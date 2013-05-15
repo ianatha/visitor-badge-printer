@@ -1,5 +1,7 @@
 GET     /                           controllers.Application.index
 
+GET     /setLocation               controllers.Application.setLocation(location: Option[String])
+
 GET     /nda                        controllers.Application.nda(to: String)
 
 GET     /interview                  controllers.Application.interview

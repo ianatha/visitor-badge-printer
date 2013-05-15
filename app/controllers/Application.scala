@@ -14,17 +14,36 @@ import scala.Some
 
 object Application extends Controller {
 
-  def index = Action {
+  def ActionWithLocation(f: Request[AnyContent] => Result): Action[AnyContent] = {
+    Action { request =>
+      if (request.session.get("location").isEmpty) {
+        Redirect(routes.Application.setLocation(None))
+      } else {
+        f(request)
+      }
+    }
+  }
+
+  def setLocation(location: Option[String]) = Action { request =>
+    if (location.isDefined) {
+      Redirect(routes.Application.index()).withSession(
+        request.session + ("location", location.get)
+      )
+    } else {
+      Ok(views.html.setlocation(request.session.get("location").getOrElse("")))
+    }
+  }
+
+  def index = ActionWithLocation { request =>
     Ok(views.html.index())
   }
 
-  def nda(to: String) = Action {
+  def nda(to: String) = ActionWithLocation { request =>
     val nda_text = """NDA"""
     Ok(views.html.nda(to, nda_text))
   }
 
-  def showAfterNdaOnly(html: Html): Action[AnyContent] = {
-    Action { implicit request =>
+  def showAfterNdaOnly(html: Html): Action[AnyContent] = { ActionWithLocation { implicit request =>
       if (request.getQueryString("nda").isDefined) {
         Ok(html)
       } else {
@@ -53,7 +72,7 @@ object Application extends Controller {
 
   def guest = showAfterNdaOnly(views.html.guest(guestForm))
 
-  def guestReceive = Action { implicit request =>
+  def guestReceive = ActionWithLocation { implicit request =>
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.guest(formWithErrors)),
       value => {
@@ -70,7 +89,7 @@ object Application extends Controller {
 
   def event = showAfterNdaOnly(views.html.event(eventForm))
 
-  def eventReceive = Action { implicit request =>
+  def eventReceive = ActionWithLocation { implicit request =>
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.event(formWithErrors)),
       value => {
@@ -86,7 +105,7 @@ object Application extends Controller {
 
   def interview = showAfterNdaOnly(views.html.interview(interviewForm))
 
-  def interviewReceive = Action { implicit request =>
+  def interviewReceive = ActionWithLocation { implicit request =>
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.interview(formWithErrors)),
       value => {
@@ -98,11 +117,11 @@ object Application extends Controller {
     )
   }
 
-  def present = Action {
+  def present = ActionWithLocation { request =>
     val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
       AppDB.dal.Persons.present()
     }
-    Ok(views.html.present(persons))
+    Ok(views.html.present(persons, request.session.get("location").getOrElse("")))
   }
 
 

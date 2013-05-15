@@ -1,4 +1,4 @@
-@(persons: Seq[Person])
+@(persons: Seq[Person], location: String)
 @import org.joda.time.DateTimeZone
 @import org.joda.time.format.DateTimeFormat
 
@@ -6,6 +6,7 @@
 <div data-role="page" id="page" data-theme="b">
     <div data-role="content">
         <h1>People present On-Site</h1>
+        <h2><a href="/setLocation">Location</a>: @location</h2>
         <h3>Click on people's names to sign them out</h3>
         @persons.map { person =>
             <div data-role="controlgroup">

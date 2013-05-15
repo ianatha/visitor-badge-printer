@@ -25,8 +25,7 @@ $(function() {
         })
     };
 
-    $(document).ready(function () {
-
+    $(document).bind('ready pageinit', function () {
         $("body").keypress(function (e) {
             if (!enabled) {
                 return;
