@@ -16,7 +16,7 @@ object Application extends Controller {
 
   def ActionWithLocation(f: Request[AnyContent] => Result): Action[AnyContent] = {
     Action { request =>
-      if (request.session.get("location").isEmpty) {
+      if (request.cookies.get("location").isEmpty) {
         Redirect(routes.Application.setLocation(None))
       } else {
         f(request)
@@ -28,11 +28,9 @@ object Application extends Controller {
 
   def setLocation(location: Option[String]) = Action { request =>
     if (location.isDefined) {
-      Redirect(routes.Application.index()).withSession(
-        request.session + ("location", standardize_location(location.get))
-      )
+      Redirect(routes.Application.index()).withCookies(Cookie("location", location.get, maxAge = Some(2000000000)))
     } else {
-      Ok(views.html.setlocation(request.session.get("location").getOrElse("")))
+      Ok(views.html.setlocation(request.cookies.get("location").getOrElse(Cookie("location", "")).value))
     }
   }
 
@@ -75,7 +73,7 @@ object Application extends Controller {
   def guest = showAfterNdaOnly(views.html.guest(guestForm))
 
   def guestReceive = ActionWithLocation { implicit request =>
-    val loc = request.session.get("location").get
+    val loc = request.cookies.get("location").get.value
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.guest(formWithErrors)),
       value => {
@@ -93,11 +91,12 @@ object Application extends Controller {
   def event = showAfterNdaOnly(views.html.event(eventForm))
 
   def eventReceive = ActionWithLocation { implicit request =>
+    val loc = request.cookies.get("location").get.value
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.event(formWithErrors)),
       value => {
         AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-          AppDB.dal.Persons.add(value)
+          AppDB.dal.Persons.add(value.copy(location = loc))
         }
         Ok(views.html.success())
       }
@@ -109,11 +108,12 @@ object Application extends Controller {
   def interview = showAfterNdaOnly(views.html.interview(interviewForm))
 
   def interviewReceive = ActionWithLocation { implicit request =>
+    val loc = request.cookies.get("location").get.value
     guestForm.bindFromRequest.fold(
       formWithErrors => Ok(views.html.interview(formWithErrors)),
       value => {
         AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-          AppDB.dal.Persons.add(value)
+          AppDB.dal.Persons.add(value.copy(location = loc))
         }
         Ok(views.html.success())
       }
@@ -122,9 +122,9 @@ object Application extends Controller {
 
   def present = ActionWithLocation { request =>
     val persons = AppDB.database.withSession { implicit session: scala.slick.session.Session =>
-      AppDB.dal.Persons.present(request.session.get("location").getOrElse(""))
+      AppDB.dal.Persons.present(request.cookies.get("location").getOrElse(Cookie("location", "")).value)
     }
-    Ok(views.html.present(persons, request.session.get("location").getOrElse("")))
+    Ok(views.html.present(persons, request.cookies.get("location").getOrElse(Cookie("location", "")).value))
   }
 
 
