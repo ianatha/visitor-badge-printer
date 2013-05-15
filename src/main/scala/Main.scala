@@ -21,6 +21,7 @@ case class Configuration(
   printerName: String = "DYMO LabelWriter 450 Turbo",
   badgeTemplate: String = "$HOME/BadgeTemplate.html",
   remoteDataSource: String = "http://example.com/",
+  location: String = "SanFrancisco",
   pollingFrequencyInUSec: Int = 2500
 )
 
@@ -142,13 +143,13 @@ trait DataSource {
   def poll(): Seq[VisitorBadge]
 }
 
-class APIDataSource(val remoteURL: String) extends DataSource {
+class APIDataSource(val remoteURL: String, val location: String) extends DataSource {
   import scala.util.parsing.json._
 
   var idsIHaveSeen: Seq[String] = Seq()
 
   def poll(): Seq[VisitorBadge] = {
-    val present = scala.io.Source.fromInputStream(new URL(remoteURL).openStream()).getLines().mkString("\n")
+    val present = scala.io.Source.fromInputStream(new URL(remoteURL + "?location=" + location).openStream()).getLines().mkString("\n")
 
     val json = JSON.parseFull(present).get.asInstanceOf[Seq[Map[String, String]]]
 
@@ -231,12 +232,13 @@ object Main {
       printerName = p.getProperty("printerName"),
       badgeTemplate = p.getProperty("badgeTemplate").replaceAll("HOME", home),
       remoteDataSource = p.getProperty("remoteDataSource"),
+      location = p.getProperty("location").toUpperCase(),
       pollingFrequencyInUSec = p.getProperty("pollingFrequencyInUSec").toInt
     )
 
     val renderer = new BadgeRenderer(new URL("file:///" + conf.badgeTemplate))
     val printer = new BadgePrinter(conf.printerName, renderer)
-    val data = new APIDataSource(conf.remoteDataSource)
+    val data = new APIDataSource(conf.remoteDataSource, conf.location)
 
     while (true) {
       try {
