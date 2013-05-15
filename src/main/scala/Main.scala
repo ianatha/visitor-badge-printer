@@ -19,7 +19,7 @@ import org.joda.time.format.DateTimeFormat
 
 case class Configuration(
   printerName: String = "DYMO LabelWriter 450 Turbo",
-  badgeTemplate: String = "$HOME/BadgeTemplate.html",
+  badgeTemplate: String = "BadgeTemplate.html",
   remoteDataSource: String = "http://example.com/",
   location: String = "SanFrancisco",
   pollingFrequencyInUSec: Int = 2500
@@ -225,18 +225,17 @@ class NSilvaDataSource(val remoteURL: String) extends DataSource {
 object Main {
   def main(args: Array[String]) = {
     val p = new Properties()
-    val home = System.getProperty("user.home")
-    p.load(new FileInputStream(new File(home + "/badgeprinter.ini")))
+    p.load(new FileInputStream(new File("badgeprinter.ini")))
 
     val conf = Configuration(
       printerName = p.getProperty("printerName"),
-      badgeTemplate = p.getProperty("badgeTemplate").replaceAll("HOME", home),
+      badgeTemplate = p.getProperty("badgeTemplate"),
       remoteDataSource = p.getProperty("remoteDataSource"),
       location = p.getProperty("location").toUpperCase(),
       pollingFrequencyInUSec = p.getProperty("pollingFrequencyInUSec").toInt
     )
 
-    val renderer = new BadgeRenderer(new URL("file:///" + conf.badgeTemplate))
+    val renderer = new BadgeRenderer(new File(conf.badgeTemplate).toURL)
     val printer = new BadgePrinter(conf.printerName, renderer)
     val data = new APIDataSource(conf.remoteDataSource, conf.location)
 
