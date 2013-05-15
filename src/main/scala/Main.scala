@@ -171,57 +171,6 @@ class APIDataSource(val remoteURL: String, val location: String) extends DataSou
   }
 }
 
-class NSilvaDataSource(val remoteURL: String) extends DataSource {
-  var idsIHaveSeen: Seq[String] = Seq()
-
-  val pattern = "data-person-id=\"(\\d+)\">(.+)\\( (.+) ago \\)".r
-  val agonessP = "(?:about )?(\\d+|less than a) ((minute|hour)s?)".r
-
-  def sanitize(in: String): String = in.replaceAll("&nbsp;", " ").replaceAll("&#x27;", "'")
-
-  def poll(): Seq[VisitorBadge] = {
-    val present = scala.io.Source.fromInputStream(new URL(remoteURL).openStream()).getLines().mkString("\n")
-
-    val entries = (pattern.findAllIn(present) map ( _ match {
-      case pattern(id, name, agoness) => {
-        val now = DateTime.now()
-        val when: DateTime = (agonessP.findAllIn(agoness) map ( _ match {
-          case agonessP(num, units, unit) => {
-            if (unit == "hour") {
-              now.minusHours(num.toInt)
-            } else if (unit == "minute") {
-              if (num == "less than a") {
-                now
-              } else {
-                now.minusMinutes(num.toInt)
-              }
-            } else {
-              now
-            }
-          }
-          case _ => now
-        })).toList.head
-        VisitorBadge(id, sanitize(name), "", when)
-      }
-    }))
-      .filter { badge => !idsIHaveSeen.contains(badge.id) } // haven't seen it before
-      .filter { badge => badge.created_at.isAfter(DateTime.now().minusMinutes(5)) } // created in the past two minutes
-      .toList
-
-    if (entries.length > 0) {
-      println("PRINTING BADGES!")
-      println(entries)
-    }
-
-    entries.foreach { badge =>
-      idsIHaveSeen = idsIHaveSeen ++ Seq(badge.id)
-    }
-
-    entries
-  }
-
-}
-
 object Main {
   def main(args: Array[String]) = {
     val p = new Properties()
