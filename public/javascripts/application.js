@@ -26,47 +26,47 @@ $(function() {
     };
 
     $(document).bind('ready pageinit', function () {
-        $("body").keypress(function (e) {
-            if (!enabled) {
-                return;
-            }
-
-            var key = e.which;
-            var when = e.timeStamp;
-
-            var delta = when - last_timestamp;
-            if (delta <= 40) {
-                event.preventDefault();
-                if (maybe_char != false) {
-                    buf.push(maybe_char);
-                    maybe_char = false;
-                }
-            } else {
-                if (maybe_char != false) {
-                    console.log("not maybe but can't type it");
-                    maybe_char = false;
-                }
-            }
-
-
-            if (key != 13) {
-                buf.push(key);
-            } else {
-                var s = keycodesToString(buf);
-                buf = []
-                fastInput(s);
-            }
-
-            if (delta > 500) {
-                buf = [];
-                if (key == 37) {
-                    console.log("maybe");
-                    maybe_char = key;
-                    event.preventDefault();
-                }
-            }
-            last_timestamp = when;
-        });
+//        $("body").keypress(function (e) {
+//            if (!enabled) {
+//                return;
+//            }
+//
+//            var key = e.which;
+//            var when = e.timeStamp;
+//
+//            var delta = when - last_timestamp;
+//            if (delta <= 40) {
+//                event.preventDefault();
+//                if (maybe_char != false) {
+//                    buf.push(maybe_char);
+//                    maybe_char = false;
+//                }
+//            } else {
+//                if (maybe_char != false) {
+//                    console.log("not maybe but can't type it");
+//                    maybe_char = false;
+//                }
+//            }
+//
+//
+//            if (key != 13) {
+//                buf.push(key);
+//            } else {
+//                var s = keycodesToString(buf);
+//                buf = []
+//                fastInput(s);
+//            }
+//
+//            if (delta > 500) {
+//                buf = [];
+//                if (key == 37) {
+//                    console.log("maybe");
+//                    maybe_char = key;
+//                    event.preventDefault();
+//                }
+//            }
+//            last_timestamp = when;
+//        });
 
         $("#splashButtons").vAlign(.43);
 
